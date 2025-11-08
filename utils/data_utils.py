@@ -1,5 +1,16 @@
 """
 Data processing utilities for training data preparation
+
+This module provides utilities for loading, preprocessing, and augmenting training
+data for the gesture classifier. It handles reading landmark data from files,
+normalizing landmarks, applying data augmentation techniques, and saving/loading
+processed data.
+
+Key functionality:
+- Load landmark data and labels from directories
+- Preprocess landmarks (normalization, scaling, etc.)
+- Augment training data (rotation, scaling, noise, etc.)
+- Save and load processed data to/from files
 """
 
 import numpy as np

@@ -1,5 +1,16 @@
 """
 Main Entry Point for Hand Gesture Recognition System
+
+This is the command-line interface (CLI) entry point for the hand gesture recognition
+system. It provides three main modes of operation:
+1. Live mode: Process real-time video from webcam
+2. Video mode: Process pre-recorded video files
+3. Train mode: Train the gesture classification model
+
+Usage examples:
+    python src/main.py --mode live
+    python src/main.py --mode video --input video.mp4
+    python src/main.py --mode train --data data/processed/
 """
 
 import argparse

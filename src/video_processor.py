@@ -1,6 +1,17 @@
 """
 Video Processing Module
 Handles live webcam and pre-recorded video processing
+
+This module orchestrates the complete hand gesture recognition pipeline for video
+streams. It combines the HandDetector (for landmark extraction) and GestureClassifier
+(for gesture recognition) to process video frames in real-time or from files.
+
+Key functionality:
+- Process live video from webcam with real-time gesture recognition
+- Process pre-recorded video files
+- Process individual frames for hand detection and gesture classification
+- Display results with annotations (landmarks, gesture names, confidence)
+- Save processed videos with annotations
 """
 
 import cv2

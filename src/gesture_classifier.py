@@ -1,6 +1,17 @@
 """
 Gesture Classification Module
 Trains and uses a model to classify hand gestures from landmarks
+
+This module implements a neural network model for classifying hand gestures based
+on the 21 landmark points extracted by the HandDetector. It uses TensorFlow/Keras
+to build, train, and use a deep learning model for gesture recognition.
+
+Key functionality:
+- Build neural network architecture for gesture classification
+- Train model on collected landmark data
+- Predict gestures from new landmark data
+- Save and load trained models
+- Manage gesture names for display purposes
 """
 
 import numpy as np

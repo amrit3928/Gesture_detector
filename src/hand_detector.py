@@ -1,6 +1,17 @@
 """
 Hand Detection Module
 Extracts hand landmarks from images/video using MediaPipe
+
+This module handles the detection and tracking of hands in images and video frames.
+It uses Google's MediaPipe framework to detect hands and extract 21 landmark points
+per hand (wrist, thumb, and each finger joint). The landmarks are returned as
+normalized coordinates (0-1) which can be converted to pixel coordinates.
+
+Key functionality:
+- Detect hands in images/video frames
+- Extract 21 landmark coordinates per detected hand
+- Draw landmarks and connections for visualization
+- Convert normalized coordinates to pixel coordinates
 """
 
 import cv2

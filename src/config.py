@@ -1,5 +1,16 @@
 """
 Configuration settings for the Hand Gesture Recognition System
+
+This file contains all configuration parameters and settings used throughout the project.
+It centralizes configuration to make it easy to adjust parameters without modifying
+multiple files. It also automatically creates necessary directories for data storage.
+
+Key configurations:
+- MediaPipe hand detection settings (confidence thresholds, max hands)
+- Model training parameters (batch size, epochs, learning rate)
+- Video processing settings (resolution, FPS)
+- Gesture recognition thresholds
+- Visualization colors and display options
 """
 
 import os

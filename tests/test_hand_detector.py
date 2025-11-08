@@ -1,5 +1,14 @@
 """
 Tests for HandDetector class
+
+This file contains unit tests for the HandDetector module. It tests the initialization,
+hand detection functionality, and coordinate conversion methods. These tests ensure
+the hand detection module works correctly before integration with other components.
+
+Test coverage:
+- HandDetector initialization
+- Hand detection on sample images
+- Landmark coordinate conversion (normalized to pixel)
 """
 
 import pytest

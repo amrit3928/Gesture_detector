@@ -1,5 +1,15 @@
 """
 Visualization utilities for hand gesture recognition
+
+This module provides helper functions for visualizing hand landmarks and gesture
+information on images. It includes functions to draw landmarks as dots, draw
+connections between landmarks, and display gesture names and confidence scores.
+
+Key functionality:
+- Draw hand landmarks as circles/dots on images
+- Draw connections between landmarks (finger joints, etc.)
+- Display gesture names and confidence scores as text overlays
+- Convert normalized coordinates to pixel coordinates for drawing
 """
 
 import cv2
