@@ -15,12 +15,14 @@ Key functionality:
 
 import numpy as np
 import os
-import cv2
-from typing import List, Tuple
+import json
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import config
 
 
-def load_landmarks_from_directory(directory: str) -> Tuple[np.ndarray, np.ndarray]:
+def load_landmarks_from_directory(directory):
     """
     Load landmark data from a directory
     
@@ -30,18 +32,94 @@ def load_landmarks_from_directory(directory: str) -> Tuple[np.ndarray, np.ndarra
     Returns:
         Tuple of (landmarks, labels)
     """
-    # TODO: Implement data loading logic
-    # TODO: Read landmark files from directory
-    # TODO: Extract labels from filenames or separate label files
-    # TODO: Return landmarks and labels as numpy arrays
+    if not os.path.exists(directory):
+        raise FileNotFoundError(f"Directory not found: {directory}")
     
     landmarks_list = []
     labels_list = []
     
-    return np.array(landmarks_list), np.array(labels_list)
+    for filename in os.listdir(directory):
+        filepath = os.path.join(directory, filename)
+        
+        if os.path.isfile(filepath):
+            try:
+                if filename.endswith('.npy'):
+                    landmarks = np.load(filepath)
+                    label = _extract_label_from_filename(filename)
+                    landmarks_list.append(landmarks)
+                    labels_list.append(label)
+                    
+                elif filename.endswith('.npz'):
+                    data = np.load(filepath)
+                    if 'landmarks' in data and 'label' in data:
+                        landmarks_list.append(data['landmarks'])
+                        labels_list.append(int(data['label']))
+                    elif 'X' in data and 'y' in data:
+                        landmarks_list.extend(data['X'])
+                        labels_list.extend(data['y'])
+                        
+                elif filename.endswith('.csv'):
+                    landmarks, label = _load_from_csv(filepath)
+                    if landmarks is not None:
+                        landmarks_list.append(landmarks)
+                        labels_list.append(label)
+                        
+                elif filename.endswith('.json'):
+                    landmarks, label = _load_from_json(filepath)
+                    if landmarks is not None:
+                        landmarks_list.append(landmarks)
+                        labels_list.append(label)
+                        
+            except Exception as e:
+                print(f"Warning: Could not load {filename}: {e}")
+                continue
+    
+    if len(landmarks_list) == 0:
+        return np.array([]), np.array([])
+    
+    landmarks_array = np.array(landmarks_list)
+    labels_array = np.array(labels_list)
+    
+    return landmarks_array, labels_array
 
 
-def preprocess_landmarks(landmarks: np.ndarray) -> np.ndarray:
+def _extract_label_from_filename(filename):
+    """Extract label from filename (e.g., 'gesture_0_sample_1.npy' -> 0)"""
+    parts = filename.replace('.npy', '').replace('.npz', '').replace('.csv', '').replace('.json', '').split('_')
+    for part in parts:
+        if part.isdigit():
+            return int(part)
+    return 0
+
+
+def _load_from_csv(filepath):
+    """Load landmarks from CSV file"""
+    try:
+        data = np.genfromtxt(filepath, delimiter=',')
+        if data.shape[1] == 64:
+            landmarks = data[:63].reshape(21, 3)
+            label = int(data[63])
+            return landmarks, label
+    except:
+        pass
+    return None, None
+
+
+def _load_from_json(filepath):
+    """Load landmarks from JSON file"""
+    try:
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+            if 'landmarks' in data and 'label' in data:
+                landmarks = np.array(data['landmarks']).reshape(21, 3)
+                label = int(data['label'])
+                return landmarks, label
+    except:
+        pass
+    return None, None
+
+
+def preprocess_landmarks(landmarks):
     """
     Preprocess landmarks for model input
     
@@ -51,14 +129,29 @@ def preprocess_landmarks(landmarks: np.ndarray) -> np.ndarray:
     Returns:
         Preprocessed landmarks
     """
-    # TODO: Normalize landmarks (e.g., relative to wrist)
-    # TODO: Apply any other preprocessing steps
-    # TODO: Return preprocessed landmarks
+    if len(landmarks.shape) == 2:
+        landmarks = landmarks.reshape(1, *landmarks.shape)
     
-    return landmarks
+    processed = []
+    
+    for landmark_set in landmarks:
+        if landmark_set.shape != (21, 3):
+            landmark_set = landmark_set.reshape(21, 3)
+        
+        wrist = landmark_set[0].copy()
+        
+        normalized = landmark_set - wrist
+        
+        scale = np.max(np.abs(normalized))
+        if scale > 0:
+            normalized = normalized / scale
+        
+        processed.append(normalized)
+    
+    return np.array(processed)
 
 
-def augment_data(landmarks: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def augment_data(landmarks, labels):
     """
     Augment training data
     
@@ -69,14 +162,71 @@ def augment_data(landmarks: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray,
     Returns:
         Augmented (landmarks, labels)
     """
-    # TODO: Implement data augmentation techniques
-    # TODO: Apply transformations (rotation, scaling, noise, etc.)
-    # TODO: Return augmented data
+    if len(landmarks) == 0:
+        return landmarks, labels
     
-    return landmarks, labels
+    augmented_landmarks = []
+    augmented_labels = []
+    
+    for i in range(len(landmarks)):
+        landmark = landmarks[i]
+        label = labels[i]
+        
+        augmented_landmarks.append(landmark)
+        augmented_labels.append(label)
+        
+        if len(landmark.shape) == 2:
+            landmark_2d = landmark
+        else:
+            landmark_2d = landmark.reshape(21, 3)
+        
+        aug_rotated = _rotate_landmarks(landmark_2d)
+        augmented_landmarks.append(aug_rotated)
+        augmented_labels.append(label)
+        
+        aug_scaled = _scale_landmarks(landmark_2d)
+        augmented_landmarks.append(aug_scaled)
+        augmented_labels.append(label)
+        
+        aug_noise = _add_noise(landmark_2d)
+        augmented_landmarks.append(aug_noise)
+        augmented_labels.append(label)
+    
+    all_landmarks = np.array(augmented_landmarks)
+    all_labels = np.array(augmented_labels)
+    
+    return all_landmarks, all_labels
 
 
-def save_landmarks(landmarks: np.ndarray, labels: np.ndarray, filepath: str):
+def _rotate_landmarks(landmarks, angle_range=15):
+    """Rotate landmarks around z-axis"""
+    angle = np.random.uniform(-angle_range, angle_range) * np.pi / 180
+    cos_a = np.cos(angle)
+    sin_a = np.sin(angle)
+    
+    rotation_matrix = np.array([
+        [cos_a, -sin_a, 0],
+        [sin_a, cos_a, 0],
+        [0, 0, 1]
+    ])
+    
+    rotated = landmarks @ rotation_matrix.T
+    return rotated
+
+
+def _scale_landmarks(landmarks, scale_range=(0.9, 1.1)):
+    """Scale landmarks"""
+    scale = np.random.uniform(scale_range[0], scale_range[1])
+    return landmarks * scale
+
+
+def _add_noise(landmarks, noise_level=0.01):
+    """Add random noise to landmarks"""
+    noise = np.random.normal(0, noise_level, landmarks.shape)
+    return landmarks + noise
+
+
+def save_landmarks(landmarks, labels, filepath):
     """
     Save landmarks and labels to file
     
@@ -85,11 +235,13 @@ def save_landmarks(landmarks: np.ndarray, labels: np.ndarray, filepath: str):
         labels: Corresponding labels
         filepath: Path to save file
     """
-    # TODO: Save landmarks and labels to file (e.g., using numpy.savez)
-    pass
+    directory = os.path.dirname(filepath)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+    np.savez(filepath, X=landmarks, y=labels)
 
 
-def load_landmarks(filepath: str) -> Tuple[np.ndarray, np.ndarray]:
+def load_landmarks(filepath):
     """
     Load landmarks and labels from file
     
@@ -99,10 +251,19 @@ def load_landmarks(filepath: str) -> Tuple[np.ndarray, np.ndarray]:
     Returns:
         Tuple of (landmarks, labels)
     """
-    # TODO: Load landmarks and labels from file
-    # TODO: Return as numpy arrays
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
     
-    landmarks = np.array([])
-    labels = np.array([])
+    data = np.load(filepath)
+    
+    if 'X' in data and 'y' in data:
+        landmarks = data['X']
+        labels = data['y']
+    elif 'landmarks' in data and 'label' in data:
+        landmarks = data['landmarks']
+        labels = data['label']
+    else:
+        raise ValueError("File does not contain expected keys (X/y or landmarks/label)")
+    
     return landmarks, labels
 
