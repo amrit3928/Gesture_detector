@@ -18,7 +18,7 @@ import sys
 import os
 import numpy as np
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.utils import to_categorical
+from keras.utils import to_categorical
 
 # Add src directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

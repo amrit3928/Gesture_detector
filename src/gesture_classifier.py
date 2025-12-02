@@ -16,7 +16,7 @@ Key functionality:
 
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
+import keras
 from typing import List, Tuple, Optional
 import os
 import config
