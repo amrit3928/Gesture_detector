@@ -18,6 +18,7 @@ import cv2
 import numpy as np
 from typing import Optional, Callable
 import config
+# import logging
 from hand_detector import HandDetector
 from gesture_classifier import GestureClassifier
 
@@ -42,16 +43,38 @@ class VideoProcessor:
         Args:
             callback: Optional callback function to process each frame
         """
-        # TODO: Open webcam (cv2.VideoCapture(0))
-        # TODO: Set camera properties (width, height, fps)
-        # TODO: Loop through frames
-        # TODO: Process each frame
-        # TODO: Display frame
-        # TODO: Handle 'q' key to quit
-        # TODO: Cleanup resources
-        
-        print("TODO: Implement live video processing")
-        pass
+
+        # open webcam
+        self.cap = cv2.VideoCapture(0)
+
+        # set cam properties
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.FRAME_HEIGHT)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.FRAME_WIDTH)
+        self.cap.set(cv2.CAP_PROP_FPS, config.FPS)
+
+        # loop through frames
+        while self.cap.isOpened():
+            grabbed, frame = self.cap.read()
+
+            if not grabbed:
+                break
+
+            # process each frame
+            annotated_frame = self.process_frame(frame)
+
+            if callback:
+                callback(annotated_frame)
+
+            # display frame
+            cv2.imshow('video frame', annotated_frame)
+
+            # 'q' key to quit
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
+
+        # cleanup
+        self.cleanup()
+
     
     def process_video_file(self, video_path: str, output_path: Optional[str] = None):
         """
@@ -61,18 +84,46 @@ class VideoProcessor:
             video_path: Path to input video file
             output_path: Optional path to save processed video
         """
-        # TODO: Open video file
-        # TODO: Get video properties (fps, width, height)
-        # TODO: Setup video writer if output_path provided
-        # TODO: Loop through frames
-        # TODO: Process each frame
-        # TODO: Write frame if output_path provided
-        # TODO: Display frame
-        # TODO: Handle 'q' key to quit
-        # TODO: Cleanup resources
-        
-        print(f"TODO: Implement video file processing for {video_path}")
-        pass
+
+        # open video file
+        self.cap = cv2.VideoCapture(video_path)
+
+        # get video properties
+        vid_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        vid_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        vid_fps = self.cap.get(cv2.CAP_PROP_FPS)
+
+        # create writer if output path exists
+        writer = None
+        if output_path:
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            writer = cv2.VideoWriter(output_path, fourcc= fourcc, fps= vid_fps, frameSize= (vid_width, vid_height))
+
+        # loop through frames
+        while self.cap.isOpened():
+            grabbed, frame = self.cap.read()
+            
+            if not grabbed:
+                break
+
+            # process each frame
+            annotated_frame = self.process_frame(frame)
+
+            if writer: 
+                writer.write(annotated_frame)
+
+            # display frame
+            cv2.imshow('Hand Gesture', annotated_frame)
+
+            # handle 'q' key to quit
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
+
+        # cleanup resources
+        self.cleanup()
+
+        if writer:
+            writer.release()
     
     def process_frame(self, frame: np.ndarray) -> np.ndarray:
         """
@@ -84,12 +135,33 @@ class VideoProcessor:
         Returns:
             Processed frame with annotations
         """
-        # TODO: Detect hands and extract landmarks
-        # TODO: Classify gestures if landmarks detected
-        # TODO: Display gesture name and confidence on frame
-        # TODO: Return annotated frame
         
         annotated_frame = frame.copy()
+
+        h, w, _ = frame.shape
+
+        list_landmarks, annotated_frame = self.hand_detector.detect_hands(annotated_frame)
+
+        for landmarks in list_landmarks:
+            coordinates = self.hand_detector.get_landmark_coordinates(landmarks, (h, w))
+
+            if self.gesture_classifier.model is None:
+                return annotated_frame
+            
+            gesture, confidence = self.gesture_classifier.predict(np.array(coordinates))
+
+            gesture_name = self.gesture_classifier.get_gesture_name(gesture)
+
+            cv2.putText(
+                annotated_frame, 
+                f'{gesture_name} ({confidence:.2f})',
+                (coordinates[0][0] + 15, coordinates[0][1] - 15),
+                cv2.FONT_HERSHEY_DUPLEX,
+                0.6,
+                config.TEXT_COLOR,
+                2
+            )
+
         return annotated_frame
     
     def load_model(self, model_path: str):
@@ -98,16 +170,25 @@ class VideoProcessor:
         
         Args:
             model_path: Path to the model file
-        """
-        # TODO: Load model using gesture_classifier
-        pass
+        """   
+        try:
+            self.gesture_classifier.load_model(model_path)
+        except Exception as E:
+            print(f"Error loading model: {E}")   
     
     def cleanup(self):
         """
         Release resources
         """
-        # TODO: Release video capture
-        # TODO: Close OpenCV windows
-        # TODO: Release hand detector
-        pass
+        
+        if self.cap is not None:
+            self.cap.release()
+            self.cap = None
 
+        cv2.destroyAllWindows()
+
+        if self.hand_detector is not None:
+            self.hand_detector.release()
+            self.hand_detector = None
+
+        #print("Resources have been cleaned up.")
