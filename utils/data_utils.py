@@ -19,7 +19,7 @@ import json
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-import config
+from src import config
 
 
 def load_landmarks_from_directory(directory):

@@ -20,7 +20,7 @@ import os
 # Add src directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from hand_detector import HandDetector
+from src.hand_detector import HandDetector
 
 
 def test_hand_detector_initialization():

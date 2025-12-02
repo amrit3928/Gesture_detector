@@ -21,7 +21,7 @@ sys.path.insert(
     0,
     os.path.join(os.path.dirname(__file__), '..', 'src')
 )
-import config
+from src import config
 
 
 def draw_landmarks(image, landmarks, color=config.LANDMARK_COLOR):
