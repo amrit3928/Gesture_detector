@@ -45,9 +45,22 @@ FRAME_WIDTH = 640
 FRAME_HEIGHT = 480
 FPS = 30
 
+# Gesture Labels (Order must match the training data ID mapping)
+GESTURE_LABELS = [
+    "four",
+    "like",
+    "mute",
+    "ok",
+    "one",
+    "palm",
+    "peace",
+    "three",
+    "two_up"
+]
+
 # Gesture Recognition Settings
 GESTURE_THRESHOLD = 0.7  # Minimum confidence for gesture recognition
-NUM_GESTURES = 10  # Number of gestures to recognize
+NUM_GESTURES = len(GESTURE_LABELS)  # Number of gestures to recognize
 
 # Visualization Settings
 SHOW_LANDMARKS = True

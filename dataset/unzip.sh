@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ZIP_NAME="hagrid-sample-light.zip"
-TARGET_DIR="hagrid_sample_light"
+ZIP_NAME="hagrid_light.zip"
+TARGET_DIR="hagrid_light"
 
 if [ ! -f "$ZIP_NAME" ]; then
     echo "File not found: $ZIP_NAME"

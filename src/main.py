@@ -77,6 +77,7 @@ def main():
     if args.mode == 'live':
         # Live webcam processing
         processor = VideoProcessor()
+        processor.gesture_classifier.set_gesture_names(config.GESTURE_LABELS)
         if args.model:
             processor.load_model(args.model)
         processor.process_live_video()
@@ -88,6 +89,7 @@ def main():
             return
         
         processor = VideoProcessor()
+        processor.gesture_classifier.set_gesture_names(config.GESTURE_LABELS)
         if args.model:
             processor.load_model(args.model)
         processor.process_video_file(args.input, args.output)
@@ -158,6 +160,7 @@ def main():
         # Initialize GestureClassifier
         print(f"\n[5/6] Initializing GestureClassifier with {num_classes} gesture classes...")
         classifier = GestureClassifier(num_gestures=num_classes)
+        classifier.set_gesture_names(config.GESTURE_LABELS)
         classifier.build_model(input_shape=X_train.shape[1:])
 
         print("\nModel architecture:")
