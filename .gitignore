@@ -40,8 +40,8 @@ venv.bak/
 
 # Data and Models
 data/raw/
-data/processed/
-data/models/*.h5
+# data/processed/  # Allow processed landmarks to be committed
+# data/models/*.h5  # Allow trained models to be committed
 data/models/*.pkl
 data/models/*.pb
 *.weights
