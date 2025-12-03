@@ -193,8 +193,21 @@ class GestureClassifier:
         Returns:
             Gesture name or "Unknown" if not found
         """
-        # TODO: Return gesture name from self.gesture_names
-        if gesture_id < len(self.gesture_names):
+        if gesture_id < len(self.gesture_names) and len(self.gesture_names) > 0:
             return self.gesture_names[gesture_id]
-        return f"Gesture_{gesture_id}"
+        
+        default_names = {
+            0: "One",
+            1: "Peace",
+            2: "Fist",
+            3: "Call",
+            4: "OK",
+            5: "Like",
+            6: "Point",
+            7: "Rock",
+            8: "Three",
+            9: "Four"
+        }
+        
+        return default_names.get(gesture_id, f"Gesture_{gesture_id}")
 

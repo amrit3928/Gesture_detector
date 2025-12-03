@@ -17,10 +17,14 @@ Key functionality:
 import cv2
 import numpy as np
 from typing import Optional, Callable
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import config
 # import logging
 from hand_detector import HandDetector
 from gesture_classifier import GestureClassifier
+from utils.data_utils import preprocess_landmarks
 
 
 class VideoProcessor:
@@ -148,14 +152,17 @@ class VideoProcessor:
             if self.gesture_classifier.model is None:
                 return annotated_frame
             
-            gesture, confidence = self.gesture_classifier.predict(np.array(coordinates))
+            landmarks_normalized = np.array(landmarks).reshape(21, 3)
+            landmarks_preprocessed = preprocess_landmarks(landmarks_normalized)
+            
+            gesture, confidence = self.gesture_classifier.predict(landmarks_preprocessed[0])
 
             gesture_name = self.gesture_classifier.get_gesture_name(gesture)
 
             cv2.putText(
                 annotated_frame, 
                 f'{gesture_name} ({confidence:.2f})',
-                (coordinates[0][0] + 15, coordinates[0][1] - 15),
+                (int(coordinates[0][0]) + 15, int(coordinates[0][1]) - 15),
                 cv2.FONT_HERSHEY_DUPLEX,
                 0.6,
                 config.TEXT_COLOR,
