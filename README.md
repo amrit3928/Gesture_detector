@@ -13,10 +13,25 @@ This project implements a live hand gesture recognition system that can run on a
 - **Hand Tracking Visualization**: Display dots and lines showing live tracking of hands and fingers
 - **On-device Processing**: Runs entirely on local hardware without cloud dependencies
 
+## Supported Gestures
+
+The system recognizes 10 hand gestures:
+
+1. **One** - Single finger extended
+2. **Peace** - Peace sign (index and middle finger up)
+3. **Fist** - All fingers closed
+4. **Call** - Phone call gesture
+5. **OK** - Thumb and index finger form circle
+6. **Like** - Thumbs up
+7. **Point** - Index finger extended, others closed
+8. **Rock** - Index and pinky extended (rock on)
+9. **Three Gun** - Thumb, index, and middle finger extended
+10. **Four** - All fingers except thumb extended
+
 ## Project Structure
 
 ```
-CSE_Final/
+Gesture_detector/
 ├── src/
 │   ├── __init__.py
 │   ├── main.py                 # Main entry point
@@ -44,17 +59,18 @@ CSE_Final/
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd CSE_Final
+git clone https://github.com/amrit3928/Gesture_detector.git
+cd Gesture_detector
 ```
 
-2. Create a virtual environment (recommended):
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+2. **Important**: This project requires Python 3.11 (MediaPipe doesn't support Python 3.13+)
 
 3. Install dependencies:
+```bash
+py -3.11 -m pip install -r requirements.txt
+```
+
+Or if Python 3.11 is your default:
 ```bash
 pip install -r requirements.txt
 ```
@@ -63,18 +79,20 @@ pip install -r requirements.txt
 
 ### Live Webcam Processing
 ```bash
-python src/main.py --mode live
+py -3.11 src/main.py --mode live --model data/models/gesture_model.h5
 ```
 
 ### Process Pre-recorded Video
 ```bash
-python src/main.py --mode video --input path/to/video.mp4
+py -3.11 src/main.py --mode video --input path/to/video.mp4 --model data/models/gesture_model.h5
 ```
 
 ### Train Model
 ```bash
-python src/main.py --mode train --data data/processed/
+py -3.11 src/main.py --mode train --data data/processed/
 ```
+
+**Note**: The trained model and training data are included in the repository, so you can use the system immediately without training.
 
 ## Milestones
 
