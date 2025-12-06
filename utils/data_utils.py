@@ -73,6 +73,20 @@ def load_landmarks_from_directory(directory):
             except Exception as e:
                 print(f"Warning: Could not load {filename}: {e}")
                 continue
+
+        elif os.path.isdir(filepath):
+            for subfile in os.listdir(filepath):
+                subfile_path = os.path.join(filepath, subfile)
+                if os.path.isfile(subfile_path) and subfile.endswith('.npy'):
+                    try: 
+                        landmarks = np.load(subfile_path)
+                        label = _extract_label_from_filename(subfile)
+                        landmarks_list.append(landmarks)
+                        labels_list.append(label)
+                    except Exception as e:
+                        print(f"Warning: Could not load {subfile}: {e}")
+                        continue
+
     
     if len(landmarks_list) == 0:
         return np.array([]), np.array([])
