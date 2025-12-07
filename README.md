@@ -79,12 +79,12 @@ pip install -r requirements.txt
 
 ### Live Webcam Processing
 ```bash
-py -3.11 src/main.py --mode live --model data/models/gesture_model.h5
+py -3.11 src/main.py --mode live --model data/models/gesture_model_final.h5
 ```
 
 ### Process Pre-recorded Video
 ```bash
-py -3.11 src/main.py --mode video --input path/to/video.mp4 --model data/models/gesture_model.h5
+py -3.11 src/main.py --mode video --input path/to/video.mp4 --model data/models/gesture_model_final.h5
 ```
 
 ### Train Model

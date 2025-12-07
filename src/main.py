@@ -181,7 +181,7 @@ def main():
         print(f"Test Accuracy: {test_accuracy:.4f}")
 
         # Save trained model
-        model_path = args.model if args.model else os.path.join(config.MODELS_DIR, "gesture_model.h5")
+        model_path = args.model if args.model else os.path.join(config.MODELS_DIR, "gesture_model_final.h5")
         print(f"\nSaving trained model to: {model_path}")
         classifier.save_model(model_path)
 
