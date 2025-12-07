@@ -25,7 +25,7 @@ The system recognizes 10 hand gestures:
 6. **Like** - Thumbs up
 7. **Point** - Index finger extended, others closed
 8. **Rock** - Index and pinky extended (rock on)
-9. **Three Gun** - Thumb, index, and middle finger extended
+9. **Three** - Thumb, index, and middle finger extended
 10. **Four** - All fingers except thumb extended
 
 ## Project Structure

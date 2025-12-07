@@ -205,7 +205,7 @@ class GestureClassifier:
             5: "Like",
             6: "Point",
             7: "Rock",
-            8: "Three Gun",
+            8: "Three",
             9: "Four"
         }
         
